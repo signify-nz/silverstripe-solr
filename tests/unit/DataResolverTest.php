@@ -43,7 +43,7 @@ class DataResolverTest extends SapphireTest
         $dbAdmin->doBuild(true, true, true);
     }
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         Injector::inst()->get(Page::class)->requireDefaultRecords();

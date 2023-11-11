@@ -21,6 +21,7 @@ use SilverStripe\ORM\FieldType\DBHTMLVarchar;
 use SilverStripe\ORM\FieldType\DBInt;
 use SilverStripe\ORM\FieldType\DBMoney;
 use SilverStripe\ORM\FieldType\DBText;
+use SilverStripe\ORM\FieldType\DBTime;
 use SilverStripe\ORM\FieldType\DBVarchar;
 
 class StaticsTest extends SapphireTest
@@ -81,6 +82,10 @@ class StaticsTest extends SapphireTest
         'SilverStripe\\ORM\\FieldType\\HTMLFragment' => 'htmltext',
         'HTMLFragment'                               => 'htmltext',
         'PrimaryKey'                                 => 'tint',
+        'Time'                                       => 'tdate',
+        DBTime::class                                => 'tdate',
+        'DBTime'                                     => 'tdate'
+
     ];
 
     public function testGetTypesMap()

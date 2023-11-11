@@ -43,7 +43,7 @@ class SolrConfigureJobTest extends SapphireTest
         }
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         Injector::inst()->get(Page::class)->requireDefaultRecords();
         foreach (self::$extra_dataobjects as $className) {

@@ -28,7 +28,7 @@ class SolrIndexTaskTest extends SapphireTest
         DataObject::class => [DataObjectExtension::class],
     ];
 
-    public function setUp()
+    protected function setUp(): void
     {
         $siteConfig = SiteConfig::current_site_config();
         $siteConfig->CanViewType = 'Anyone';

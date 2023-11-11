@@ -83,7 +83,7 @@ class SolrIndexJobTest extends SapphireTest
         $this->assertEquals([SiteTree::class], $this->indexJob->getClassToIndex());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         Injector::inst()->get(Page::class)->requireDefaultRecords();

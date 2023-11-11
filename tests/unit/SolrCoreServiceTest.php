@@ -200,7 +200,7 @@ class SolrCoreServiceTest extends SapphireTest
         $this->assertInstanceOf(Query::class, $this->service->getAdmin());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         Injector::inst()->get(Page::class)->requireDefaultRecords();
@@ -210,7 +210,7 @@ class SolrCoreServiceTest extends SapphireTest
         $this->service = new SolrCoreService();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         /** @var SolrConfigureTask $task */
         $task = Injector::inst()->get(SolrConfigureTask::class);

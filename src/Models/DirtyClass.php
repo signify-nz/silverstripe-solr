@@ -66,7 +66,7 @@ class DirtyClass extends DataObject
 
         $class = singleton($this->Class)->plural_name();
 
-        $IDs = json_decode($this->IDs, true);
+        $IDs = json_decode($this->IDs ?? '{}', true, 512, JSON_THROW_ON_ERROR);
 
         $fields->addFieldsToTab('Root.Main', [
             ReadonlyField::create('Class', 'Class', $class),

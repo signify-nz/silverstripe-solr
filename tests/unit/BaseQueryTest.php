@@ -102,7 +102,7 @@ class BaseQueryTest extends SapphireTest
         $this->assertEquals($expected, $this->query->getOrFacetFilter());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->query = Injector::inst()->get(BaseQuery::class);
         parent::setUp();

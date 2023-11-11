@@ -137,13 +137,13 @@ class DocumentFactoryTest extends SapphireTest
         ],
     ];
 
-    public function setUp()
+    protected function setUp(): void
     {
         $siteConfig = SiteConfig::current_site_config();
         $siteConfig->CanViewType = 'Anyone';
         $siteConfig->write();
 
-        return parent::setUp();
+        parent::setUp();
     }
 
     public function testConstruct()

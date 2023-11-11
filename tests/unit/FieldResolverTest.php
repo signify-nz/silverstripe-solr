@@ -110,11 +110,11 @@ class FieldResolverTest extends SapphireTest
         $this->assertEquals($expected, $factory->resolveField('RelationObject.Title'));
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->fieldResolver = new FieldResolver();
         $this->fieldResolver->setIndex(new CircleCITestIndex());
 
-        return parent::setUp();
+        parent::setUp();
     }
 }

@@ -62,10 +62,10 @@ class SolrLogTest extends SapphireTest
         $this->assertEquals($expected, $this->log->providePermissions());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->log = SolrLog::create();
 
-        return parent::setUp();
+        parent::setUp();
     }
 }

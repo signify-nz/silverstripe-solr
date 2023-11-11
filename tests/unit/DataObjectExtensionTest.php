@@ -169,7 +169,7 @@ class DataObjectExtensionTest extends SapphireTest
         $this->assertEquals($counted, $counted2);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         /** @var CacheInterface $cache */
         $cache = Injector::inst()->get(CacheInterface::class . '.SolrCache');
@@ -178,6 +178,6 @@ class DataObjectExtensionTest extends SapphireTest
         $task->setLogger(new NullLogger());
         $task->run(new NullHTTPRequest());
 
-        return parent::setUp();
+        parent::setUp();
     }
 }

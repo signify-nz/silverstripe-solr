@@ -76,7 +76,7 @@ class SchemaFactoryTest extends SapphireTest
         Config::modify()->set(SolrCoreService::class, 'paths.base_path', $basePath);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->factory = Injector::inst()->get(SchemaFactory::class);
         Injector::inst()->get(Page::class)->requireDefaultRecords();

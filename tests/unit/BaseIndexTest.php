@@ -448,7 +448,7 @@ class BaseIndexTest extends SapphireTest
         Deprecation::set_enabled(false);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $task = new SolrConfigureTask();
         $task->setLogger(new NullLogger());
