@@ -1,0 +1,38 @@
+services:
+  database:
+    image: mariadb:10.9
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_ROOT_PASSWORD=toor
+      - MYSQL_DATABASE=tests
+      - MYSQL_HOST=127.0.0.1
+  solr:
+    image: solr:8.11
+    volumes:
+      - .solr:/var/solr/data
+
+steps:
+  - name: php81cms4
+    image: cimg/php:8.1
+    environment: &environment
+      - SS_DATABASE_CLASS=MySQLDatabase
+      - SS_DATABASE_SERVER=database
+      - SS_DATABASE_USERNAME=root
+      - SS_DATABASE_PASSWORD=toor
+      - SS_DATABASE_NAME=tests
+      - SS_ENVIRONMENT_TYPE=dev
+      - SS_DEFAULT_ADMIN_USERNAME=admin
+      - SS_DEFAULT_ADMIN_PASSWORD=password
+      - DEBUGBAR_DISABLE=true
+    commands:
+      - sudo chmod -R 777 . # This is an ugly hack, but it works...
+      - sudo mkdir -p /root/.cache # I'm the "circleci" user, which is to-be-fixed
+      - sudo chmod -R 777 /root/.cache # The CircleCI image is rootless
+      - sudo mkdir .solr
+      - sudo chmod -R 777 .solr
+      - git clone -b solrtesting https://codeberg.org/Firesphere/silverstripe-test-app.git app
+      - composer require silverstripe/cms:^4 --no-progress -n
+      - composer vendor-expose
+      - vendor/bin/sake dev/tasks/SolrConfigureTask
+      - vendor/bin/phpunit tests/unit
+
