@@ -1,5 +1,5 @@
 steps:
-  - name: php81cms4
+  - name: php81cms4solr8
     image: cimg/php:8.1
     environment:
       - SS_DATABASE_CLASS=MySQLDatabase
@@ -20,6 +20,7 @@ steps:
       - git clone -b solrtesting https://codeberg.org/Firesphere/silverstripe-test-app.git app
       - composer require silverstripe/cms:^4 --no-progress -n
       - composer vendor-expose
+      - vendor/bin/sake dev/build flush=all
       - vendor/bin/sake dev/tasks/SolrConfigureTask
       - vendor/bin/phpunit tests/unit
 services:
