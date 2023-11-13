@@ -1,6 +1,6 @@
 steps:
   - name: php81cms4
-    image: cimg/php:8.1
+    image: cimg/php:8.2
     environment:
       - SS_DATABASE_CLASS=MySQLDatabase
       - SS_DATABASE_SERVER=database
@@ -18,7 +18,7 @@ steps:
       - sudo mkdir .solr
       - sudo chmod -R 777 .solr
       - git clone -b solrtesting https://codeberg.org/Firesphere/silverstripe-test-app.git app
-      - composer require silverstripe/cms:^4 --no-progress -n
+      - composer require silverstripe/cms:^5 --no-progress -n
       - composer vendor-expose
       - vendor/bin/sake dev/tasks/SolrConfigureTask
       - vendor/bin/phpunit tests/unit
@@ -31,4 +31,4 @@ services:
       - MYSQL_DATABASE=tests
       - MYSQL_HOST=127.0.0.1
   solr:
-    image: solr:8.11
+    image: solr:9
