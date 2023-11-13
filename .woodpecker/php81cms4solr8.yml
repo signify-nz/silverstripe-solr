@@ -8,8 +8,6 @@ services:
       - MYSQL_HOST=127.0.0.1
   solr:
     image: solr:8.11
-    volumes:
-      - .solr:/var/solr/data
 
 steps:
   - name: php81cms4
