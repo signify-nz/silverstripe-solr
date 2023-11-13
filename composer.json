@@ -26,23 +26,22 @@
   "require": {
     "php": ">=7.3",
     "ext-json": "*",
-    "php-http/discovery": "^1.14",
-    "http-interop/http-factory-guzzle": "^1",
-    "psr-discovery/http-client-implementations": "*",
-    "psr-discovery/http-factory,-implementations": "*",
-    "php-http/guzzle7-adapter": "^1.0.0",
-    "silverstripe/framework": "^4|^5",
-    "symbiote/silverstripe-queuedjobs": "^4|^5",
-    "solarium/solarium": "^6.0",
+    "guzzlehttp/guzzle": ">=6",
+    "guzzlehttp/psr7": "^2.6",
     "minimalcode/search": "^1.0",
-    "symfony/event-dispatcher": "^5.4"
+    "php-http/discovery": "^1.14",
+    "php-http/guzzle7-adapter": "^1.0",
+    "php-http/httplug-bundle": "^1.31",
+    "psr-discovery/http-client-implementations": "^1",
+    "psr-discovery/http-factory-implementations": "^1",
+    "silverstripe/framework": "^4|^5",
+    "solarium/solarium": "^6.0",
+    "symbiote/silverstripe-queuedjobs": "^4|^5"
   },
   "require-dev": {
     "phpunit/phpunit": ">=5",
-    "guzzlehttp/guzzle": "^6.3|^7",
-    "scriptfusion/phpunit-immediate-exception-printer": "^1",
-    "squizlabs/php_codesniffer": "^3.0",
-    "roave/security-advisories": "dev-latest"
+    "roave/security-advisories": "dev-latest",
+    "squizlabs/php_codesniffer": "^3.0"
   },
   "extra": {
     "branch-alias": {
@@ -78,5 +77,12 @@
     "firesphere/solr-member-permissions": "Fine grained per-member permission checks"
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "php-http/discovery": true,
+      "silverstripe/vendor-plugin": true
+    }
+  }
 }
