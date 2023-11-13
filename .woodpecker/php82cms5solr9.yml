@@ -32,4 +32,6 @@ services:
       - MYSQL_DATABASE=tests
       - MYSQL_HOST=127.0.0.1
   solr:
-    image: solr:9
+    image: solr:8.11
+    volumes:
+      - /woodpecker/src/codeberg.org/Firesphere/silverstripe-solr/.solr:/var/solr/data
