@@ -1,7 +1,7 @@
 <?php
 /**
  * Trait GetterSetterTrait|Firesphere\SolrSearch\Traits\GetterSetterTrait Getters and setters that are duplicate among
- * classes like {@link \Firesphere\SolrSearch\Indexes\BaseIndex} and {@link \Firesphere\SolrSearch\Queries\BaseQuery}
+ * classes like {@link \Firesphere\SolrSearch\Indexes\SolrIndex} and {@link \Firesphere\SolrSearch\Queries\BaseQuery}
  *
  * @package Firesphere\Solr\Search
  * @author Simon `Firesphere` Erkelens; Marco `Sheepy` Hermo

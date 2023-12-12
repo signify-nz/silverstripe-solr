@@ -10,11 +10,11 @@
 namespace Firesphere\SolrSearch\Factories;
 
 use Exception;
+use Firesphere\SearchBackend\Helpers\Statics;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Helpers\DataResolver;
 use Firesphere\SolrSearch\Helpers\FieldResolver;
-use Firesphere\SolrSearch\Helpers\Statics;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Traits\DocumentFactoryTrait;
 use Firesphere\SolrSearch\Traits\LoggerTrait;
@@ -67,7 +67,7 @@ class DocumentFactory
      * So make sure you properly loop and set $class
      *
      * @param array $fields Fields to index
-     * @param BaseIndex $index Index to push the documents to
+     * @param SolrIndex $index Index to push the documents to
      * @param Query $update Update Query object
      * @return array Documents to be pushed
      * @throws Exception
@@ -103,9 +103,9 @@ class DocumentFactory
     /**
      * Show the message about what is being indexed
      *
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      */
-    protected function indexGroupMessage(BaseIndex $index): void
+    protected function indexGroupMessage(SolrIndex $index): void
     {
         $debugString = sprintf(
             'Indexing %s on %s (%s items)%s',
@@ -175,7 +175,7 @@ class DocumentFactory
 
         $valuesForField = $this->getValuesForField($object, $options);
 
-        $typeMap = Statics::getTypeMap();
+        $typeMap = Statics::getTypeMap('solr');
         $type = $typeMap[$options['type']] ?? $typeMap['*'];
 
         foreach ($valuesForField as $value) {

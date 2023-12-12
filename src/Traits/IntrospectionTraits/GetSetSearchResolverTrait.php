@@ -10,7 +10,7 @@
 
 namespace Firesphere\SolrSearch\Traits;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 
 /**
  * Setters and getters for the introspection.
@@ -23,16 +23,16 @@ use Firesphere\SolrSearch\Indexes\BaseIndex;
 trait GetSetSearchResolverTrait
 {
     /**
-     * @var BaseIndex Index to use
+     * @var SolrIndex Index to use
      */
     protected $index;
 
     /**
      * Get the current index
      *
-     * @return BaseIndex
+     * @return SolrIndex
      */
-    public function getIndex(): BaseIndex
+    public function getIndex(): SolrIndex
     {
         return $this->index;
     }

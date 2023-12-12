@@ -6,7 +6,7 @@ namespace Firesphere\SolrSearch\Tests;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Factories\DocumentFactory;
 use Firesphere\SolrSearch\Helpers\FieldResolver;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Page;
 use Psr\Log\LoggerInterface;
 use SilverStripe\CMS\Model\SiteTree;
@@ -168,7 +168,7 @@ class DocumentFactoryTest extends SapphireTest
         $factory->setItems(Page::get());
         $docs = $factory->buildItems($fields, $index, $update);
         $this->assertInternalType('array', $docs);
-        $this->assertInstanceOf(BaseIndex::class, $factory->getFieldResolver()->getIndex());
+        $this->assertInstanceOf(SolrIndex::class, $factory->getFieldResolver()->getIndex());
         $this->compareExpectedDocs($docs);
         Page::create(['Title' => 'Blep', 'ShowInSearch' => false])->write();
         $fields = $index->getFieldsForIndexing();

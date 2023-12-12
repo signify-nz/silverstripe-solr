@@ -5,7 +5,7 @@ namespace Firesphere\SolrSearch\Tests;
 
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Factories\SchemaFactory;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Page;
 use SilverStripe\Core\Config\Config;
@@ -33,7 +33,7 @@ class SchemaFactoryTest extends SapphireTest
 
         $this->assertNull($this->factory->getIndex());
         $this->factory->setIndex($index);
-        $this->assertInstanceOf(BaseIndex::class, $this->factory->getIndex());
+        $this->assertInstanceOf(SolrIndex::class, $this->factory->getIndex());
     }
 
     public function testGettersSetters()

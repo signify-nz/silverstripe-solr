@@ -5,7 +5,7 @@ namespace Firesphere\SolrSearch\Tests;
 
 use CircleCITestIndex;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Jobs\SolrConfigureJob;
 use Firesphere\SolrSearch\Jobs\SolrIndexJob;
 use Page;
@@ -45,7 +45,7 @@ class SolrIndexJobTest extends SapphireTest
         $this->job->process();
         $result = $this->indexJob->process();
 
-        $this->assertNotContains(BaseIndex::class, $this->indexJob->getIndexes(), 'Test index removed');
+        $this->assertNotContains(SolrIndex::class, $this->indexJob->getIndexes(), 'Test index removed');
         $this->assertEquals(0, $result->totalSteps, 'Test reset total count');
 
         $job = new SolrIndexJob();

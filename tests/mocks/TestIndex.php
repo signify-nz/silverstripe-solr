@@ -3,11 +3,11 @@
 
 namespace Firesphere\SolrSearch\Tests;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\TestOnly;
 
-class TestIndex extends BaseIndex implements TestOnly
+class TestIndex extends SolrIndex implements TestOnly
 {
     protected $facetFields = [
         SiteTree::class => [

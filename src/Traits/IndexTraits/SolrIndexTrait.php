@@ -10,7 +10,7 @@
 
 namespace Firesphere\SolrSearch\Traits;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 
 /**
@@ -34,7 +34,7 @@ trait SolrIndexTrait
      */
     protected $service;
     /**
-     * @var BaseIndex Current core being indexed
+     * @var SolrIndex Current core being indexed
      */
     protected $index;
     /**
@@ -93,9 +93,9 @@ trait SolrIndexTrait
     /**
      * Get the Index class.
      *
-     * @return BaseIndex
+     * @return SolrIndex
      */
-    public function getIndex(): BaseIndex
+    public function getIndex(): SolrIndex
     {
         return $this->index;
     }
@@ -103,9 +103,9 @@ trait SolrIndexTrait
     /**
      * Set the index class
      *
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      */
-    public function setIndex(BaseIndex $index): void
+    public function setIndex(SolrIndex $index): void
     {
         $this->index = $index;
     }

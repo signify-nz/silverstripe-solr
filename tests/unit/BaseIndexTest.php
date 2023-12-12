@@ -6,7 +6,7 @@ namespace Firesphere\SolrSearch\Tests;
 use CircleCITestIndex;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Helpers\Synonyms;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Models\SearchSynonym;
 use Firesphere\SolrSearch\Queries\BaseQuery;
 use Firesphere\SolrSearch\Results\SearchResult;
@@ -54,7 +54,7 @@ class BaseIndexTest extends SapphireTest
     ];
 
     /**
-     * @var BaseIndex
+     * @var SolrIndex
      */
     protected $index;
 

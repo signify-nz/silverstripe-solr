@@ -10,8 +10,8 @@
 namespace Firesphere\SolrSearch\Factories;
 
 use Exception;
+use Firesphere\SearchBackend\Helpers\Statics;
 use Firesphere\SolrSearch\Helpers\FieldResolver;
-use Firesphere\SolrSearch\Helpers\Statics;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Traits\GetSetSchemaFactoryTrait;
 use SilverStripe\Control\Director;
@@ -90,7 +90,7 @@ class SchemaFactory extends ViewableData
     protected function getFieldDefinition($fieldName, &$return, $copyField = null)
     {
         $field = $this->fieldResolver->resolveField($fieldName);
-        $typeMap = Statics::getTypeMap();
+        $typeMap = Statics::getTypeMap('solr');
         $storeFields = $this->getStoreFields();
         $item = [];
         foreach ($field as $name => $options) {

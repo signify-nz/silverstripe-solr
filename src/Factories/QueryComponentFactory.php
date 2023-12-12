@@ -9,7 +9,7 @@
 
 namespace Firesphere\SolrSearch\Factories;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Queries\BaseQuery;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Traits\QueryComponentBoostTrait;
@@ -69,7 +69,7 @@ class QueryComponentFactory
      */
     protected $queryArray = [];
     /**
-     * @var BaseIndex Index to query
+     * @var SolrIndex Index to query
      */
     protected $index;
 
@@ -199,9 +199,9 @@ class QueryComponentFactory
     /**
      * Get the BaseIndex
      *
-     * @return BaseIndex
+     * @return SolrIndex
      */
-    public function getIndex(): BaseIndex
+    public function getIndex(): SolrIndex
     {
         return $this->index;
     }
@@ -209,10 +209,10 @@ class QueryComponentFactory
     /**
      * Set a BaseIndex
      *
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      * @return self
      */
-    public function setIndex(BaseIndex $index): self
+    public function setIndex(SolrIndex $index): self
     {
         $this->index = $index;
 
@@ -315,7 +315,7 @@ class QueryComponentFactory
         // Assuming the first term is the term entered
         $queryString = implode(' ', $this->queryArray);
         // Arbitrarily limit to 5 if the config isn't set
-        $count = BaseIndex::config()->get('spellcheckCount') ?: 5;
+        $count = SolrIndex::config()->get('spellcheckCount') ?: 5;
         $spellcheck = $this->clientQuery->getSpellcheck();
         $spellcheck->setQuery($queryString);
         $spellcheck->setCount($count);

@@ -9,7 +9,7 @@
 
 namespace Firesphere\SolrSearch\Results;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Queries\BaseQuery;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Traits\SearchResultGetTrait;
@@ -48,7 +48,7 @@ class SearchResult extends ViewableData
      */
     protected $query;
     /**
-     * @var BaseIndex Index the query has run on
+     * @var SolrIndex Index the query has run on
      */
     protected $index;
     /**
@@ -63,9 +63,9 @@ class SearchResult extends ViewableData
      *
      * @param Result $result
      * @param BaseQuery $query
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      */
-    public function __construct(Result $result, BaseQuery $query, BaseIndex $index)
+    public function __construct(Result $result, BaseQuery $query, SolrIndex $index)
     {
         parent::__construct();
         $this->index = $index;

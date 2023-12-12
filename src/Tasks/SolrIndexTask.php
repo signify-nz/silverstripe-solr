@@ -12,7 +12,7 @@ namespace Firesphere\SolrSearch\Tasks;
 use Exception;
 use Firesphere\SolrSearch\Factories\DocumentFactory;
 use Firesphere\SolrSearch\Helpers\SolrLogger;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\States\SiteState;
 use Firesphere\SolrSearch\Traits\LoggerTrait;
@@ -109,7 +109,7 @@ class SolrIndexTask extends BuildTask
         $indexes = $this->service->getValidIndexes($request->getVar('index'));
 
         foreach ($indexes as $indexName) {
-            /** @var BaseIndex $index */
+            /** @var SolrIndex $index */
             $index = Injector::inst()->get($indexName, false);
             $this->setIndex($index);
 

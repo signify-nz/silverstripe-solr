@@ -10,7 +10,7 @@
 
 namespace Firesphere\SolrSearch\Traits;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Queries\BaseQuery;
 use Minimalcode\Search\Criteria;
 use Solarium\Component\Facet\Field;
@@ -26,7 +26,7 @@ use Solarium\QueryType\Select\Query\Query;
 trait QueryComponentFacetTrait
 {
     /**
-     * @var BaseIndex Index to query
+     * @var SolrIndex Index to query
      */
     protected $index;
     /**

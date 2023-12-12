@@ -6,7 +6,7 @@ namespace Firesphere\SolrSearch\Tests;
 use CircleCITestIndex;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Factories\QueryComponentFactory;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Queries\BaseQuery;
 use Minimalcode\Search\Criteria;
 use Page;
@@ -71,7 +71,7 @@ class QueryComponentFactoryTest extends SapphireTest
         );
         $this->assertCount(3, $this->factory->getClientQuery()->getFilterQueries());
         $this->assertInstanceOf(Helper::class, $this->factory->getHelper());
-        $this->assertInstanceOf(BaseIndex::class, $this->factory->getIndex());
+        $this->assertInstanceOf(SolrIndex::class, $this->factory->getIndex());
         $this->assertInstanceOf(BaseQuery::class, $this->factory->getQuery());
         $this->assertInternalType('array', $this->factory->getQueryArray());
         $this->assertInternalType('array', $this->factory->getBoostTerms());

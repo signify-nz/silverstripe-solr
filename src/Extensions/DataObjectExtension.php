@@ -11,10 +11,12 @@
 namespace Firesphere\SolrSearch\Extensions;
 
 use Exception;
+use Firesphere\SearchBackend\Extensions\DataObjectSearchExtension;
+use Firesphere\SearchBackend\Models\DirtyClass;
 use Firesphere\SolrSearch\Helpers\SolrLogger;
-use Firesphere\SolrSearch\Models\DirtyClass;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Tests\DataObjectExtensionTest;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use ReflectionException;
@@ -35,7 +37,6 @@ use Solarium\Exception\HttpException;
  *
  * Extend every DataObject with the option to update the index.
  *
- * @package Firesphere\Solr\Search
  * @property DataObject|DataObjectExtension $owner
  */
 class DataObjectExtension extends DataExtension
@@ -57,6 +58,7 @@ class DataObjectExtension extends DataExtension
      * @throws HTTPException
      * @throws ReflectionException
      * @throws InvalidArgumentException
+     * @throws \JsonException
      */
     public function onAfterWrite()
     {
@@ -79,7 +81,7 @@ class DataObjectExtension extends DataExtension
         }
         $request = Controller::curr()->getRequest();
 
-        return (!($request->getURL() &&
+        return ($request && !($request->getURL() &&
             strpos('dev/build', $request->getURL()) !== false));
     }
 
@@ -91,6 +93,7 @@ class DataObjectExtension extends DataExtension
      * @throws HTTPException
      * @throws ReflectionException
      * @throws InvalidArgumentException
+     * @throws \JsonException
      */
     protected function pushToSolr(DataObject $owner)
     {
@@ -99,10 +102,10 @@ class DataObjectExtension extends DataExtension
             return;
         }
 
-        /** @var DataObject $owner */
-        $record = $this->getDirtyClass(SolrCoreService::UPDATE_TYPE);
+        /** @var DataObject|DataObjectSearchExtension $owner */
+        $record = $owner->getDirtyClass(SolrCoreService::UPDATE_TYPE);
 
-        $ids = json_decode($record->IDs, 1) ?: [];
+        $ids = json_decode($record->IDs, 1, 512, JSON_THROW_ON_ERROR) ?: [];
         $mode = Versioned::get_reading_mode();
         try {
             Versioned::set_reading_mode(Versioned::LIVE);
@@ -126,42 +129,20 @@ class DataObjectExtension extends DataExtension
     }
 
     /**
-     * Find or create a new DirtyClass for recording dirty IDs
-     *
-     * @param string $type
-     * @return DirtyClass
-     * @throws ValidationException
-     */
-    protected function getDirtyClass(string $type)
-    {
-        // Get the DirtyClass object for this item
-        /** @var null|DirtyClass $record */
-        $record = DirtyClass::get()->filter(['Class' => $this->owner->ClassName, 'Type' => $type])->first();
-        if (!$record || !$record->exists()) {
-            $record = DirtyClass::create([
-                'Class' => $this->owner->ClassName,
-                'Type'  => $type,
-            ]);
-            $record->write();
-        }
-
-        return $record;
-    }
-
-    /**
      * Remove the owner ID from the dirty ID set
      *
      * @param DataObject $owner
      * @param array $ids
      * @param DirtyClass $record
      * @throws ValidationException
+     * @throws \JsonException
      */
     protected function clearIDs(DataObject $owner, array $ids, DirtyClass $record): void
     {
         $values = array_flip($ids);
         unset($values[$owner->ID]);
 
-        $record->IDs = json_encode(array_keys($values));
+        $record->IDs = json_encode(array_keys($values), JSON_THROW_ON_ERROR);
         $record->write();
     }
 
@@ -174,6 +155,7 @@ class DataObjectExtension extends DataExtension
      * @param Exception $error
      * @throws ValidationException
      * @throws HTTPException
+     * @throws NotFoundExceptionInterface
      */
     protected function registerException(array $ids, DirtyClass $record, Exception $error): void
     {
@@ -206,7 +188,7 @@ class DataObjectExtension extends DataExtension
      * @throws HTTPException
      * @throws ReflectionException
      * @throws ValidationException
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException|\JsonException
      */
     public function doReindex()
     {
@@ -219,9 +201,9 @@ class DataObjectExtension extends DataExtension
      * @throws ValidationException
      * @throws HTTPException
      * @throws ReflectionException
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException|\JsonException
      */
-    public function onAfterPublish()
+    public function onAfterPublish(): void
     {
         if ($this->shouldPush()) {
             /** @var DataObject $owner */
@@ -235,15 +217,16 @@ class DataObjectExtension extends DataExtension
      *
      * @throws ValidationException
      * @throws HTTPException
+     * @throws NotFoundExceptionInterface|\JsonException
      */
     public function onAfterDelete(): void
     {
-        /** @var DataObject $owner */
+        /** @var DataObject|DataObjectSearchExtension $owner */
         $owner = $this->owner;
         /** @var DirtyClass $record */
-        $record = $this->getDirtyClass(SolrCoreService::DELETE_TYPE);
+        $record = $owner->getDirtyClass(SolrCoreService::DELETE_TYPE);
         $record->IDs = $record->IDs ?? '[]'; // If the record is new, or the IDs list is null, default
-        $ids = json_decode($record->IDs, 1);
+        $ids = json_decode($record->IDs, 1, 512, JSON_THROW_ON_ERROR);
 
         try {
             (new SolrCoreService())
@@ -256,72 +239,5 @@ class DataObjectExtension extends DataExtension
             $this->registerException($ids, $record, $error);
         }
         // @codeCoverageIgnoreEnd
-    }
-
-    /**
-     * Get the view status for each member in this object
-     *
-     * @return array
-     */
-    public function getViewStatus(): array
-    {
-        // return as early as possible
-        /** @var DataObject|SiteTree $owner */
-        $owner = $this->owner;
-        if (isset(static::$cachedClasses[$owner->ClassName])) {
-            return static::$cachedClasses[$owner->ClassName];
-        }
-
-        // Make sure the siteconfig is loaded
-        if (!static::$siteConfig) {
-            static::$siteConfig = SiteConfig::current_site_config();
-        }
-        // Return false if it's not allowed to show in search
-        // The setting needs to be explicitly false, to avoid any possible collision
-        // with objects not having the setting, thus being `null`
-        // Return immediately if the owner has ShowInSearch not being `null`
-        if ($owner->ShowInSearch === false || $owner->ShowInSearch === 0) {
-            return ['false'];
-        }
-
-        $permissions = $this->getGroupViewPermissions($owner);
-
-        if (!$owner->hasExtension(InheritedPermissionsExtension::class)) {
-            static::$cachedClasses[$owner->ClassName] = $permissions;
-        }
-
-        return $permissions;
-    }
-
-    /**
-     * Determine the view permissions based on group settings
-     *
-     * @param DataObject|SiteTree|SiteConfig $owner
-     * @return array
-     */
-    protected function getGroupViewPermissions($owner): array
-    {
-        // Switches are not ideal, but it's a lot more readable this way!
-        switch ($owner->CanViewType) {
-            case 'LoggedInUsers':
-                $return = ['false', 'LoggedIn'];
-                break;
-            case 'OnlyTheseUsers':
-                $return = ['false'];
-                $return = array_merge($return, $owner->ViewerGroups()->column('Code'));
-                break;
-            case 'Inherit':
-                $parent = !$owner->ParentID ? static::$siteConfig : $owner->Parent();
-                $return = $this->getGroupViewPermissions($parent);
-                break;
-            case 'Anyone': // View is either not implemented, or it's "Anyone"
-                $return = ['null'];
-                break;
-            default:
-                // Default to "Anyone can view"
-                $return = ['null'];
-        }
-
-        return $return;
     }
 }

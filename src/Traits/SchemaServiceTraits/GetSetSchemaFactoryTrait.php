@@ -11,7 +11,7 @@
 namespace Firesphere\SolrSearch\Traits;
 
 use Firesphere\SolrSearch\Factories\SchemaFactory;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 
 /**
@@ -38,7 +38,7 @@ trait GetSetSchemaFactoryTrait
     /**
      * Index to generate the schema for
      *
-     * @var BaseIndex
+     * @var SolrIndex
      */
     protected $index;
     /**
@@ -61,7 +61,7 @@ trait GetSetSchemaFactoryTrait
     /**
      * Get the Index that's being used
      *
-     * @return BaseIndex
+     * @return SolrIndex
      */
     public function getIndex()
     {
@@ -71,7 +71,7 @@ trait GetSetSchemaFactoryTrait
     /**
      * Set the index that's being used and add the introspection for it
      *
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      * @return SchemaFactory
      */
     public function setIndex($index): self

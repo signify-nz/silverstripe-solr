@@ -1,7 +1,7 @@
 <?php
 /**
  * Trait BaseIndexTrait|Firesphere\SolrSearch\Traits\BaseIndexTrait Used to extract methods from the
- * {@link \Firesphere\SolrSearch\Indexes\BaseIndex} to make the code more readable
+ * {@link \Firesphere\SolrSearch\Indexes\SolrIndex} to make the code more readable
  *
  * @package Firesphere\Solr\Search
  * @author Simon `Firesphere` Erkelens; Marco `Sheepy` Hermo
@@ -11,7 +11,7 @@
 
 namespace Firesphere\SolrSearch\Traits;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex as SolrIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex as SolrIndex;
 use ReflectionClass;
 use ReflectionException;
 use SilverStripe\Core\Config\Config;

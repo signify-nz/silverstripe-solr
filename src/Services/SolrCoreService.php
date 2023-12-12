@@ -10,20 +10,24 @@
 namespace Firesphere\SolrSearch\Services;
 
 use Exception;
+use Firesphere\SearchBackend\Services\BaseService;
 use Firesphere\SolrSearch\Factories\DocumentFactory;
 use Firesphere\SolrSearch\Helpers\FieldResolver;
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Traits\CoreAdminTrait;
 use Firesphere\SolrSearch\Traits\CoreServiceTrait;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\HandlerStack;
 use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Discovery\Psr18ClientDiscovery;
 use LogicException;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Environment;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\ArrayList;
@@ -44,7 +48,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @package Firesphere\Solr\Search
  */
-class SolrCoreService
+class SolrCoreService extends BaseService
 {
     use Injectable;
     use Configurable;
@@ -81,13 +85,21 @@ class SolrCoreService
     const CREATE_TYPE = 'create';
 
     /**
+     * Map the ENV variables to the wanted names of the config
+     * @var array
+     */
+    private const ENVIRONMENT_VARS = [
+        'SOLR_ENDPOINT' => 'host',
+        'SOLR_USERNAME' => 'username',
+        'SOLR_PASSWORD' => 'password',
+        'SOLR_PORT'     => 'port',
+    ];
+
+
+    /**
      * @var array Base indexes that exist
      */
     protected $baseIndexes = [];
-    /**
-     * @var array Valid indexes out of the base indexes
-     */
-    protected $validIndexes = [];
     /**
      * @var array Available config versions
      */
@@ -105,52 +117,46 @@ class SolrCoreService
      */
     public function __construct()
     {
-        $config = static::config()->get('config');
-        $httpClient = HTTPClientDiscovery::find();
+        $endpoint0 = $this->getEndpointConfig();
+        $this->setupClient($endpoint0);
+        parent::__construct(SolrIndex::class);
+    }
+
+    /**
+     * Build a configuration
+     * @return array
+     */
+    private function getEndpointConfig(): array
+    {
+        $config = self::config()->get('config');
+        if (!isset($config['endpoint']) || $config['endpoint'] === 'ENVIRONMENT') {
+            $endpoint0 = [];
+            foreach (self::ENVIRONMENT_VARS as $envVar => $solrVar) {
+                if (!Environment::hasEnv($envVar)) {
+                    continue; // skip vars not set
+                }
+                $endpoint0[$solrVar] = Environment::getEnv($envVar);
+            }
+        } else {
+            $endpoint0 = array_shift($config['endpoint']);
+        }
+
+        return $endpoint0;
+    }
+
+    /**
+     * @param array $endpoint0
+     * @return void
+     */
+    public function setupClient(array $endpoint0): void
+    {
+        $httpClient = Psr18ClientDiscovery::find();
         $requestFactory = Psr17FactoryDiscovery::findRequestFactory();
         $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
         $eventDispatcher = new EventDispatcher();
         $adapter = new Psr18Adapter($httpClient, $requestFactory, $streamFactory);
-        $this->client = new Client($adapter, $eventDispatcher, $config);
+        $this->client = new Client($adapter, $eventDispatcher, $endpoint0);
         $this->admin = $this->client->createCoreAdmin();
-        $this->baseIndexes = ClassInfo::subclassesFor(BaseIndex::class);
-        $this->filterIndexes();
-    }
-
-    /**
-     * Filter enabled indexes down to valid indexes that can be instantiated
-     * or are allowed from config
-     *
-     * @throws ReflectionException
-     */
-    protected function filterIndexes(): void
-    {
-        $enabledIndexes = static::config()->get('indexes');
-        $enabledIndexes = is_array($enabledIndexes) ? $enabledIndexes : $this->baseIndexes;
-        foreach ($this->baseIndexes as $subindex) {
-            // If the config of indexes is set, and the requested index isn't in it, skip addition
-            // Or, the index simply doesn't exist, also a valid option
-            if (!in_array($subindex, $enabledIndexes, true) ||
-                !$this->checkReflection($subindex)
-            ) {
-                continue;
-            }
-            $this->validIndexes[] = $subindex;
-        }
-    }
-
-    /**
-     * Check if the class is instantiable
-     *
-     * @param $subindex
-     * @return bool
-     * @throws ReflectionException
-     */
-    protected function checkReflection($subindex): bool
-    {
-        $reflectionClass = new ReflectionClass($subindex);
-
-        return $reflectionClass->isInstantiable();
     }
 
     /**
@@ -174,7 +180,7 @@ class SolrCoreService
         $hierarchy = FieldResolver::getHierarchy($items->first()->ClassName);
 
         foreach ($indexes as $indexString) {
-            /** @var BaseIndex $index */
+            /** @var SolrIndex $index */
             $index = Injector::inst()->get($indexString);
             $classes = $index->getClasses();
             $inArray = array_intersect($classes, $hierarchy);
@@ -190,35 +196,15 @@ class SolrCoreService
     }
 
     /**
-     * Get valid indexes for the project
-     *
-     * @param null|string $index
-     * @return array
-     */
-    public function getValidIndexes($index = null): array
-    {
-        if ($index && !in_array($index, $this->validIndexes, true)) {
-            throw new LogicException('Incorrect index ' . $index);
-        }
-
-        if ($index) {
-            return [$index];
-        }
-
-        // return the array values, to reset the keys
-        return array_values($this->validIndexes);
-    }
-
-    /**
      * Execute the manipulation of solr documents
      *
      * @param SS_List $items
      * @param $type
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      * @return Result
      * @throws Exception
      */
-    public function doManipulate($items, $type, BaseIndex $index): Result
+    public function doManipulate($items, $type, SolrIndex $index): Result
     {
         $client = $index->getClient();
 
@@ -234,12 +220,12 @@ class SolrCoreService
      *
      * @param SS_List $items
      * @param string $type
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      * @param CoreClient $client
      * @return mixed
      * @throws Exception
      */
-    protected function getUpdate($items, $type, BaseIndex $index, CoreClient $client)
+    protected function getUpdate($items, $type, SolrIndex $index, CoreClient $client)
     {
         // get an update query instance
         $update = $client->createUpdate();
@@ -271,7 +257,7 @@ class SolrCoreService
     /**
      * Create the documents and add to the update
      *
-     * @param BaseIndex $index
+     * @param SolrIndex $index
      * @param SS_List $items
      * @param Query $update
      * @throws Exception
@@ -288,9 +274,10 @@ class SolrCoreService
 
     /**
      * Get the document factory prepared
-     *
      * @param SS_List $items
      * @return DocumentFactory
+     * @throws NotFoundExceptionInterface
+     * @todo move to Base Service
      */
     protected function getFactory($items): DocumentFactory
     {

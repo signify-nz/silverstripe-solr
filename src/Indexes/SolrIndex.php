@@ -10,6 +10,7 @@
 namespace Firesphere\SolrSearch\Indexes;
 
 use Exception;
+use Firesphere\SearchBackend\Indexes\CoreIndex;
 use Firesphere\SolrSearch\Factories\QueryComponentFactory;
 use Firesphere\SolrSearch\Factories\SchemaFactory;
 use Firesphere\SolrSearch\Helpers\SolrLogger;
@@ -51,7 +52,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @package Firesphere\Solr\Search
  */
-abstract class BaseIndex
+abstract class SolrIndex extends CoreIndex
 {
     use Extensible;
     use Configurable;
@@ -59,22 +60,6 @@ abstract class BaseIndex
     use GetterSetterTrait;
     use BaseIndexTrait;
 
-    /**
-     * Field types that can be added
-     * Used in init to call build methods from configuration yml
-     *
-     * @array
-     */
-    private static $fieldTypes = [
-        'FulltextFields',
-        'SortFields',
-        'FilterFields',
-        'BoostedFields',
-        'CopyFields',
-        'DefaultField',
-        'FacetFields',
-        'StoredFields',
-    ];
     /**
      * {@link SchemaFactory}
      *
@@ -105,11 +90,7 @@ abstract class BaseIndex
      */
     public function __construct()
     {
-        // Set up the client
-        $config = Config::inst()->get(SolrCoreService::class, 'config');
-        $config['endpoint'] = $this->getConfig($config['endpoint']);
         $this->client = (new SolrCoreService())->getClient();
-        $this->client->setOptions($config);
 
         // Set up the schema service, only used in the generation of the schema
         /** @var SchemaFactory $schemaFactory */
@@ -141,13 +122,6 @@ abstract class BaseIndex
     }
 
     /**
-     * Name of this index.
-     *
-     * @return string
-     */
-    abstract public function getIndexName();
-
-    /**
      * Required to initialise the fields.
      * It's loaded in to the non-static properties for backward compatibility with FTS
      * Also, it's a tad easier to use this way, loading the other way around would be very
@@ -155,6 +129,7 @@ abstract class BaseIndex
      */
     public function init()
     {
+        print_r($this->getIndexName());
         $config = self::config()->get($this->getIndexName());
         if (!$config) {
             Deprecation::notice('5', 'Please set an index name and use a config yml');

@@ -3,10 +3,10 @@
 
 namespace tests\mocks;
 
-use Firesphere\SolrSearch\Indexes\BaseIndex;
+use Firesphere\SolrSearch\Indexes\SolrIndex;
 use SilverStripe\Dev\TestOnly;
 
-class TestIndexFour extends BaseIndex implements TestOnly
+class TestIndexFour extends SolrIndex implements TestOnly
 {
 
     /**
