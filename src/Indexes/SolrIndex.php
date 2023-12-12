@@ -11,6 +11,7 @@ namespace Firesphere\SolrSearch\Indexes;
 
 use Exception;
 use Firesphere\SearchBackend\Indexes\CoreIndex;
+use Firesphere\SearchBackend\Queries\CoreQuery;
 use Firesphere\SolrSearch\Factories\QueryComponentFactory;
 use Firesphere\SolrSearch\Factories\SchemaFactory;
 use Firesphere\SolrSearch\Helpers\SolrLogger;
@@ -90,7 +91,10 @@ abstract class SolrIndex extends CoreIndex
      */
     public function __construct()
     {
+        $config = Config::inst()->get(SolrCoreService::class, 'config');
+        $config['endpoint'] = $this->getConfig($config['endpoint']);
         $this->client = (new SolrCoreService())->getClient();
+        $this->client->setOptions($config);
 
         // Set up the schema service, only used in the generation of the schema
         /** @var SchemaFactory $schemaFactory */
@@ -122,53 +126,6 @@ abstract class SolrIndex extends CoreIndex
     }
 
     /**
-     * Required to initialise the fields.
-     * It's loaded in to the non-static properties for backward compatibility with FTS
-     * Also, it's a tad easier to use this way, loading the other way around would be very
-     * memory intensive, as updating the config for each item is not efficient
-     */
-    public function init()
-    {
-        print_r($this->getIndexName());
-        $config = self::config()->get($this->getIndexName());
-        if (!$config) {
-            Deprecation::notice('5', 'Please set an index name and use a config yml');
-        }
-
-        if (!empty($this->getClasses())) {
-            if (!$this->usedAllFields) {
-                Deprecation::notice('5', 'It is advised to use a config YML for most cases');
-            }
-
-            return;
-        }
-
-        $this->initFromConfig($config);
-    }
-
-    /**
-     * Generate the config from yml if possible
-     * @param array|null $config
-     */
-    protected function initFromConfig($config): void
-    {
-        if (!$config || !array_key_exists('Classes', $config)) {
-            throw new LogicException('No classes or config to index found!');
-        }
-
-        $this->setClasses($config['Classes']);
-
-        // For backward compatibility, copy the config to the protected values
-        // Saves doubling up further down the line
-        foreach (self::$fieldTypes as $type) {
-            if (array_key_exists($type, $config)) {
-                $method = 'set' . $type;
-                $this->$method($config[$type]);
-            }
-        }
-    }
-
-    /**
      * Default returns a SearchResult. It can return an ArrayData if FTS Compat is enabled
      *
      * @param BaseQuery $query
@@ -178,7 +135,7 @@ abstract class SolrIndex extends CoreIndex
      * @throws ReflectionException
      * @throws Exception
      */
-    public function doSearch(BaseQuery $query)
+    public function doSearch($query)
     {
         SiteState::alterQuery($query);
         // Build the actual query parameters

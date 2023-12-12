@@ -10,6 +10,7 @@
 namespace Firesphere\SolrSearch\Helpers;
 
 use Countable;
+use Firesphere\SearchBackend\Models\SearchLog;
 use Firesphere\SolrSearch\Models\SolrLog;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use GuzzleHttp\Client;
@@ -83,8 +84,8 @@ class SolrLogger
     {
         $solrLogger = new self();
         $solrLogger->saveSolrLog($type);
-        /** @var SolrLog $lastError */
-        $lastError = SolrLog::get()->last();
+        /** @var SearchLog $lastError */
+        $lastError = SearchLog::get()->last();
 
         $err = ($lastError === null) ? 'Unknown' : $lastError->getLastErrorLine();
         $errTime = ($lastError === null) ? 'Unknown' : $lastError->Timestamp;
@@ -144,13 +145,13 @@ class SolrLogger
             DB::connect($config);
         }
         // @codeCoverageIgnoreEnd
-        if (!SolrLog::get()->filter($filter)->exists()) {
+        if (!SearchLog::get()->filter($filter)->exists()) {
             $logData = [
                 'Message' => $error['message'],
                 'Type'    => $type,
             ];
             $log = array_merge($filter, $logData);
-            SolrLog::create($log)->write();
+            SearchLog::create($log)->write();
             if (Director::is_cli() || Controller::curr()->getRequest()->getVar('unittest')) {
                 /** @var LoggerInterface $logger */
                 $logger = Injector::inst()->get(LoggerInterface::class);
