@@ -10,23 +10,21 @@
 namespace Firesphere\SolrSearch\Indexes;
 
 use Exception;
+use Firesphere\SearchBackend\Config\SearchConfig;
 use Firesphere\SearchBackend\Indexes\CoreIndex;
 use Firesphere\SearchBackend\Queries\CoreQuery;
+use Firesphere\SearchBackend\Traits\QueryTraits\QueryFilterTrait;
 use Firesphere\SolrSearch\Factories\QueryComponentFactory;
 use Firesphere\SolrSearch\Factories\SchemaFactory;
 use Firesphere\SolrSearch\Helpers\SolrLogger;
 use Firesphere\SolrSearch\Helpers\Synonyms;
 use Firesphere\SolrSearch\Interfaces\ConfigStore;
-use Firesphere\SolrSearch\Models\SearchSynonym;
 use Firesphere\SolrSearch\Queries\BaseQuery;
 use Firesphere\SolrSearch\Results\SearchResult;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\States\SiteState;
 use Firesphere\SolrSearch\Traits\BaseIndexTrait;
 use Firesphere\SolrSearch\Traits\GetterSetterTrait;
-use Http\Discovery\HttpClientDiscovery;
-use Http\Discovery\Psr17FactoryDiscovery;
-use LogicException;
 use ReflectionException;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
@@ -34,16 +32,12 @@ use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Dev\Deprecation;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\View\ArrayData;
-use Solarium\Client as SolariumClient;
-use Solarium\Core\Client\Adapter\Psr18Adapter;
 use Solarium\Exception\HttpException;
 use Solarium\QueryType\Select\Query\Query;
 use Solarium\QueryType\Select\Result\Result;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Base for creating a new Solr core.
@@ -60,6 +54,7 @@ abstract class SolrIndex extends CoreIndex
     use Injectable;
     use GetterSetterTrait;
     use BaseIndexTrait;
+    use QueryFilterTrait;
 
     /**
      * {@link SchemaFactory}
@@ -91,10 +86,9 @@ abstract class SolrIndex extends CoreIndex
      */
     public function __construct()
     {
-        $config = Config::inst()->get(SolrCoreService::class, 'config');
-        $config['endpoint'] = $this->getConfig($config['endpoint']);
-        $this->client = (new SolrCoreService())->getClient();
-        $this->client->setOptions($config);
+        $this->client = Injector::inst()->get(SolrCoreService::class)->getClient();
+        // Add the core name to the endpoint config
+        $this->client->getEndpoint('localhost')->setOptions(['core' => $this->getIndexName()], false);
 
         // Set up the schema service, only used in the generation of the schema
         /** @var SchemaFactory $schemaFactory */
@@ -175,7 +169,7 @@ abstract class SolrIndex extends CoreIndex
 
     /**
      * From the given BaseQuery, generate a Solarium ClientQuery object
-     *
+     * @todo refactor to implement {@link QueryBuilderInterface}
      * @param BaseQuery $query
      * @return Query
      */

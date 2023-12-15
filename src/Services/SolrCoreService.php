@@ -10,6 +10,7 @@
 namespace Firesphere\SolrSearch\Services;
 
 use Exception;
+use Firesphere\SearchBackend\Config\SearchConfig;
 use Firesphere\SearchBackend\Services\BaseService;
 use Firesphere\SolrSearch\Factories\DocumentFactory;
 use Firesphere\SolrSearch\Helpers\FieldResolver;
@@ -85,18 +86,6 @@ class SolrCoreService extends BaseService
     const CREATE_TYPE = 'create';
 
     /**
-     * Map the ENV variables to the wanted names of the config
-     * @var array
-     */
-    private const ENVIRONMENT_VARS = [
-        'SOLR_ENDPOINT' => 'host',
-        'SOLR_USERNAME' => 'username',
-        'SOLR_PASSWORD' => 'password',
-        'SOLR_PORT'     => 'port',
-    ];
-
-
-    /**
      * @var array Base indexes that exist
      */
     protected $baseIndexes = [];
@@ -117,45 +106,23 @@ class SolrCoreService extends BaseService
      */
     public function __construct()
     {
-        $endpoint0 = $this->getEndpointConfig();
-        $this->setupClient($endpoint0);
+        $endpointConfig = SearchConfig::getConfig(SearchConfig::SOLR_CONFIG);
+        $this->setupClient($endpointConfig);
         parent::__construct(SolrIndex::class);
     }
 
     /**
-     * Build a configuration
-     * @return array
-     */
-    private function getEndpointConfig(): array
-    {
-        $config = self::config()->get('config');
-        if (!isset($config['endpoint']) || $config['endpoint'] === 'ENVIRONMENT') {
-            $endpoint0 = [];
-            foreach (self::ENVIRONMENT_VARS as $envVar => $solrVar) {
-                if (!Environment::hasEnv($envVar)) {
-                    continue; // skip vars not set
-                }
-                $endpoint0[$solrVar] = Environment::getEnv($envVar);
-            }
-        } else {
-            $endpoint0 = array_shift($config['endpoint']);
-        }
-
-        return $endpoint0;
-    }
-
-    /**
-     * @param array $endpoint0
+     * @param array $endpointConfig
      * @return void
      */
-    public function setupClient(array $endpoint0): void
+    public function setupClient(array $endpointConfig): void
     {
         $httpClient = Psr18ClientDiscovery::find();
         $requestFactory = Psr17FactoryDiscovery::findRequestFactory();
         $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
         $eventDispatcher = new EventDispatcher();
         $adapter = new Psr18Adapter($httpClient, $requestFactory, $streamFactory);
-        $this->client = new Client($adapter, $eventDispatcher, $endpoint0);
+        $this->client = new Client($adapter, $eventDispatcher, ['endpoint' => ['localhost' => $endpointConfig]]);
         $this->admin = $this->client->createCoreAdmin();
     }
 

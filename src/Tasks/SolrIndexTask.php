@@ -229,6 +229,7 @@ class SolrIndexTask extends BuildTask
             } catch (Exception $error) {
                 // @codeCoverageIgnoreStart
                 $this->logException($this->index->getIndexName(), $group, $error);
+                $group++; // We do need to continue to the next group or we end up in an infinite loop
                 continue;
                 // @codeCoverageIgnoreEnd
             }

@@ -112,13 +112,6 @@ trait CoreServiceTrait
     }
 
     /**
-     * Ensure the getValidIndexes() method exists on all classes using this trait.
-     *
-     * @return mixed
-     */
-    abstract public function getValidIndexes();
-
-    /**
      * Get the classes in hierarchy to see if it's valid
      *
      * @param string $index Index to check classes for

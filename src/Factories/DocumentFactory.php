@@ -10,6 +10,8 @@
 namespace Firesphere\SolrSearch\Factories;
 
 use Exception;
+use Firesphere\SearchBackend\Extensions\DataObjectSearchExtension;
+use Firesphere\SearchBackend\Factories\DocumentCoreFactory;
 use Firesphere\SearchBackend\Helpers\Statics;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Helpers\DataResolver;
@@ -34,11 +36,10 @@ use Solarium\QueryType\Update\Query\Query;
  *
  * @package Firesphere\Solr\Search
  */
-class DocumentFactory
+class DocumentFactory extends DocumentCoreFactory
 {
     use Configurable;
     use Extensible;
-    use DocumentFactoryTrait;
     use LoggerTrait;
 
     /**
@@ -49,18 +50,6 @@ class DocumentFactory
         'tfloat',
         'tdouble',
     ];
-    /**
-     * @var bool Debug this build
-     */
-    protected $debug = false;
-
-    /**
-     * DocumentFactory constructor, sets up the field resolver
-     */
-    public function __construct()
-    {
-        $this->fieldResolver = Injector::inst()->get(FieldResolver::class);
-    }
 
     /**
      * Note, it can only take one type of class at a time!
@@ -72,7 +61,7 @@ class DocumentFactory
      * @return array Documents to be pushed
      * @throws Exception
      */
-    public function buildItems($fields, $index, $update): array
+    public function buildItems($fields, $index, $update = null): array
     {
         $this->getFieldResolver()->setIndex($index);
         $boostFields = $index->getBoostedFields();
@@ -105,7 +94,7 @@ class DocumentFactory
      *
      * @param SolrIndex $index
      */
-    protected function indexGroupMessage(SolrIndex $index): void
+    protected function indexGroupMessage($index): void
     {
         $debugString = sprintf(
             'Indexing %s on %s (%s items)%s',
@@ -121,9 +110,9 @@ class DocumentFactory
      * Add fields that should always be included
      *
      * @param Document $doc Solr Document
-     * @param DataObject|DataObjectExtension $item Item to get the data from
+     * @param DataObject|DataObjectSearchExtension $item Item to get the data from
      */
-    protected function addDefaultFields(Document $doc, DataObject $item)
+    protected function addDefaultFields($doc, $item): void
     {
         $doc->setKey(SolrCoreService::ID_FIELD, $item->ClassName . '-' . $item->ID);
         $doc->addField(SolrCoreService::CLASS_ID_FIELD, $item->ID);
@@ -185,59 +174,6 @@ class DocumentFactory
     }
 
     /**
-     * Determine if the given object is one of the given type
-     *
-     * @param string|DataObject $class Class to compare
-     * @param array|string $base Class or list of base classes
-     * @return bool
-     */
-    protected function classIs($class, $base): bool
-    {
-        $base = is_array($base) ? $base : [$base];
-
-        foreach ($base as $nextBase) {
-            if ($this->classEquals($class, $nextBase)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if a base class is an instance of the expected base group
-     *
-     * @param string|DataObject $class Class to compare
-     * @param string $base Base class
-     * @return bool
-     */
-    protected function classEquals($class, $base): bool
-    {
-        return $class === $base || ($class instanceof $base);
-    }
-
-    /**
-     * Use the DataResolver to find the value(s) for a field.
-     * Returns an array of values, and if it's multiple, it becomes a long array
-     *
-     * @param DataObject $object Object to resolve
-     * @param array $options Customised options
-     * @return array
-     */
-    protected function getValuesForField($object, $options): array
-    {
-        try {
-            $valuesForField = [DataResolver::identify($object, $options['fullfield'])];
-        } catch (Exception $error) {
-            // @codeCoverageIgnoreStart
-            $valuesForField = [];
-            // @codeCoverageIgnoreEnd
-        }
-
-        return $valuesForField;
-    }
-
-    /**
      * Push field to a document
      *
      * @param Document $doc Solr document
@@ -255,28 +191,5 @@ class DocumentFactory
         $name = getShortFieldName($options['name']);
 
         $doc->addField($name, $value, $options['boost'], Document::MODIFIER_SET);
-    }
-
-    /**
-     * Are we debugging?
-     *
-     * @return bool
-     */
-    public function isDebug(): bool
-    {
-        return $this->debug;
-    }
-
-    /**
-     * Set to true if debugging should be enabled
-     *
-     * @param bool $debug
-     * @return DocumentFactory
-     */
-    public function setDebug(bool $debug): DocumentFactory
-    {
-        $this->debug = $debug;
-
-        return $this;
     }
 }
