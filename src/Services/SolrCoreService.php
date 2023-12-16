@@ -135,6 +135,7 @@ class SolrCoreService extends BaseService
      * @return bool|Result
      * @throws ReflectionException
      * @throws Exception
+     * @throws NotFoundExceptionInterface
      */
     public function updateItems($items, $type, $index = null)
     {

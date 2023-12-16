@@ -95,51 +95,6 @@ trait GetterSetterTrait
     }
 
     /**
-     * Add a boosted field to be boosted at query time
-     *
-     * This method is out of place in a way, but it's a shared method
-     * between Index and Query, thus needs to be here.
-     *
-     * @param string $field
-     * @param array|int $options
-     * @param int|null $boost
-     * @return $this
-     */
-    public function addBoostedField($field, $options = [], $boost = null)
-    {
-        if ($boost === null && is_int($options)) {
-            $boost = $options;
-        }
-
-        $this->boostedFields[$field] = $boost;
-
-        return $this;
-    }
-
-    /**
-     * Get the boosted fields
-     *
-     * @return array
-     */
-    public function getBoostedFields(): array
-    {
-        return $this->boostedFields;
-    }
-
-    /**
-     * Boosted fields are used at index time, not at query time
-     *
-     * @param array $boostedFields
-     * @return $this
-     */
-    public function setBoostedFields($boostedFields): self
-    {
-        $this->boostedFields = $boostedFields;
-
-        return $this;
-    }
-
-    /**
      * Get the facet fields
      *
      * @return array

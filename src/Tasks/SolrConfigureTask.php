@@ -10,6 +10,7 @@
 namespace Firesphere\SolrSearch\Tasks;
 
 use Exception;
+use Firesphere\SearchBackend\Config\SearchConfig;
 use Firesphere\SolrSearch\Helpers\SolrLogger;
 use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Interfaces\ConfigStore;
@@ -133,7 +134,7 @@ class SolrConfigureTask extends BuildTask
      */
     protected function createConfigForIndex(SolrIndex $instance): ConfigStore
     {
-        $storeConfig = SolrCoreService::config()->get('store');
+        $storeConfig = SearchConfig::config()->get('store');
         $configStore = $this->getStore($storeConfig);
         $instance->uploadConfig($configStore);
 

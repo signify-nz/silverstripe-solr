@@ -9,6 +9,8 @@
 
 namespace Firesphere\SolrSearch\Queries;
 
+use Firesphere\SearchBackend\Interfaces\QueryInterface;
+use Firesphere\SearchBackend\Queries\CoreQuery;
 use Firesphere\SolrSearch\Traits\BaseQueryTrait;
 use Firesphere\SolrSearch\Traits\GetterSetterTrait;
 use SilverStripe\Core\Injector\Injectable;
@@ -20,28 +22,16 @@ use SilverStripe\Core\Injector\Injectable;
  *
  * @package Firesphere\Solr\Search
  */
-class BaseQuery
+class BaseQuery extends CoreQuery implements QueryInterface
 {
-    use GetterSetterTrait;
-    use BaseQueryTrait;
+//    use GetterSetterTrait;
+//    use BaseQueryTrait;
     use Injectable;
 
-    /**
-     * @var int Pagination start
-     */
-    protected $start = 0;
-    /**
-     * @var int Total rows to display
-     */
-    protected $rows = 10;
     /**
      * @var array Always get the ID. If you don't, you need to implement your own solution
      */
     protected $fields = [];
-    /**
-     * @var array Sorting settings
-     */
-    protected $sort = [];
     /**
      * @var bool Enable spellchecking?
      */
@@ -55,59 +45,9 @@ class BaseQuery
      */
     protected $facetsMinCount = 1;
     /**
-     * @var array Search terms
-     */
-    protected $terms = [];
-    /**
      * @var array Highlighted items
      */
     protected $highlight = [];
-
-    /**
-     * Get the offset to start
-     *
-     * @return int
-     */
-    public function getStart(): int
-    {
-        return $this->start;
-    }
-
-    /**
-     * Set the offset to start
-     *
-     * @param int $start
-     * @return $this
-     */
-    public function setStart($start): self
-    {
-        $this->start = $start;
-
-        return $this;
-    }
-
-    /**
-     * Get the rows to return
-     *
-     * @return int
-     */
-    public function getRows(): int
-    {
-        return $this->rows;
-    }
-
-    /**
-     * Set the rows to return
-     *
-     * @param int $rows
-     * @return $this
-     */
-    public function setRows($rows): self
-    {
-        $this->rows = $rows;
-
-        return $this;
-    }
 
     /**
      * Get the fields to return
@@ -133,29 +73,6 @@ class BaseQuery
     }
 
     /**
-     * Get the sort fields
-     *
-     * @return array
-     */
-    public function getSort(): array
-    {
-        return $this->sort;
-    }
-
-    /**
-     * Set the sort fields
-     *
-     * @param array $sort
-     * @return $this
-     */
-    public function setSort($sort): self
-    {
-        $this->sort = $sort;
-
-        return $this;
-    }
-
-    /**
      * Get the facet count minimum to use
      *
      * @return int
@@ -174,52 +91,6 @@ class BaseQuery
     public function setFacetsMinCount($facetsMinCount): self
     {
         $this->facetsMinCount = $facetsMinCount;
-
-        return $this;
-    }
-
-    /**
-     * Get the search terms
-     *
-     * @return array
-     */
-    public function getTerms(): array
-    {
-        return $this->terms;
-    }
-
-    /**
-     * Set the search tearms
-     *
-     * @param array $terms
-     * @return $this
-     */
-    public function setTerms($terms): self
-    {
-        $this->terms = $terms;
-
-        return $this;
-    }
-
-    /**
-     * Get the filters
-     *
-     * @return array
-     */
-    public function getFilter(): array
-    {
-        return $this->filter;
-    }
-
-    /**
-     * Set the query filters
-     *
-     * @param array $filter
-     * @return $this
-     */
-    public function setFilter($filter): self
-    {
-        $this->filter = $filter;
 
         return $this;
     }
@@ -327,72 +198,5 @@ class BaseQuery
     public function shouldFollowSpellcheck(): bool
     {
         return $this->followSpellcheck;
-    }
-
-    /**
-     * Stub for AND facets to be get
-     *
-     * @return array
-     */
-    public function getAndFacetFilter(): array
-    {
-        return $this->getFacetFilter();
-    }
-
-    /**
-     * Get the AND facet filtering
-     *
-     * @return array
-     */
-    public function getFacetFilter(): array
-    {
-        return $this->andFacetFilter;
-    }
-
-    /**
-     * Stub for AND facets to be set
-     *
-     * @param array $facetFilter
-     * @return BaseQuery
-     */
-    public function setAndFacetFilter(array $facetFilter): self
-    {
-        return $this->setFacetFilter($facetFilter);
-    }
-
-    /**
-     * Set the AND based facet filtering
-     *
-     * @param array $facetFilter
-     * @return BaseQuery
-     */
-    public function setFacetFilter(array $facetFilter): self
-    {
-        $this->andFacetFilter = $facetFilter;
-
-        return $this;
-    }
-
-    /**
-     * Get the OR based facet filtering
-     *
-     * @return array
-     */
-    public function getOrFacetFilter(): array
-    {
-        return $this->orFacetFilter;
-    }
-
-    /**
-     * Set the OR based facet filtering
-     *
-     * @param array $facetFilter
-     * @return BaseQuery
-     */
-    public function setOrFacetFilter(array $facetFilter): self
-    {
-        $this->orFacetFilter = $facetFilter;
-
-        return $this;
     }
 }
