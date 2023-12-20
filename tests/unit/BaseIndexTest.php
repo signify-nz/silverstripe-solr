@@ -8,7 +8,7 @@ use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Helpers\Synonyms;
 use Firesphere\SolrSearch\Indexes\SolrIndex;
 use Firesphere\SolrSearch\Models\SearchSynonym;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Firesphere\SolrSearch\Results\SearchResult;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Stores\FileConfigStore;
@@ -144,7 +144,7 @@ class BaseIndexTest extends SapphireTest
             'Title'     => 'Parent',
             'Field'     => 'ParentID',
         ], $facets[SiteTree::class]);
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Test');
         $clientQuery = $index->buildSolrQuery($query);
         $this->arrayHasKey('facet-Parent', $clientQuery->getFacetSet()->getFacets());
@@ -274,7 +274,7 @@ class BaseIndexTest extends SapphireTest
     {
         $index = new CircleCITestIndex();
 
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Home');
 
         $result = $index->doSearch($query);
@@ -302,7 +302,7 @@ class BaseIndexTest extends SapphireTest
         $this->assertCount(0, $result3->getMatches());
 
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Home', ['SiteTree_Title'], 5);
         $result4 = $index->doSearch($query);
 
@@ -311,7 +311,7 @@ class BaseIndexTest extends SapphireTest
         $this->assertEquals(1, $result4->getTotalItems());
 
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Home', ['SiteTree.Title'], 3);
         $result4 = $index->doSearch($query);
 
@@ -320,14 +320,14 @@ class BaseIndexTest extends SapphireTest
         $this->assertEquals(1, $result4->getTotalItems());
 
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Home', [], 0, true);
         $index->doSearch($query);
 
         $this->assertContains('Home~', $index->getQueryTerms());
 
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Hrme', [], 0);
         $query->setSpellcheck(true);
         $result = $index->doSearch($query);
@@ -337,14 +337,14 @@ class BaseIndexTest extends SapphireTest
         $this->assertNotEmpty($result->getCollatedSpellcheck());
 
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('');
         $index->doSearch($query);
 
         $this->assertEquals(['*:*'], $index->getQueryTerms());
 
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('test');
         $query->addSort('SiteTree_Title', 'asc');
         $index->doSearch($query);
@@ -356,14 +356,14 @@ class BaseIndexTest extends SapphireTest
     public function testDoRetry()
     {
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Hrme', [], 0);
         $query->setSpellcheck(false);
         $index->doSearch($query);
         $queryArray = $index->getQueryTerms();
 
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('Hrme', [], 0);
         $query->setFollowSpellcheck(true);
         $query->setSpellcheck(true);

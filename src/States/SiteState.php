@@ -13,7 +13,7 @@ namespace Firesphere\SolrSearch\States;
 
 use Firesphere\SolrSearch\Helpers\FieldResolver;
 use Firesphere\SolrSearch\Interfaces\SiteStateInterface;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use ReflectionClass;
 use ReflectionException;
 use SilverStripe\Core\ClassInfo;
@@ -253,7 +253,7 @@ abstract class SiteState
     /**
      * Alter the query for each instance
      *
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @throws ReflectionException
      */
     public static function alterQuery(&$query): void

@@ -5,7 +5,7 @@ namespace Firesphere\SolrSearch\Tests;
 
 use CircleCITestIndex;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Tasks\SolrConfigureTask;
 use Firesphere\SolrSearch\Tasks\SolrIndexTask;
@@ -60,7 +60,7 @@ class SolrCoreServiceTest extends SapphireTest
     public function testUpdateItems()
     {
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('*:*');
         $items = SiteTree::get();
 
@@ -74,7 +74,7 @@ class SolrCoreServiceTest extends SapphireTest
     public function testUpdateItemsEmptyArray()
     {
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $this->service->doManipulate(ArrayList::create(), SolrCoreService::DELETE_TYPE_ALL, $index);
         $this->assertEquals(0, $index->doSearch($query)->getTotalItems());
     }

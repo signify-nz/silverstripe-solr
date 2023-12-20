@@ -4,7 +4,7 @@
 namespace Firesphere\SolrSearch\Tests;
 
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Page;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
@@ -20,7 +20,7 @@ class BaseQueryTest extends SapphireTest
     ];
 
     /**
-     * @var BaseQuery
+     * @var SolrQuery
      */
     protected $query;
 
@@ -104,7 +104,7 @@ class BaseQueryTest extends SapphireTest
 
     protected function setUp()
     {
-        $this->query = Injector::inst()->get(BaseQuery::class);
+        $this->query = Injector::inst()->get(SolrQuery::class);
         parent::setUp();
         Injector::inst()->get(Page::class)->requireDefaultRecords();
         foreach (self::$extra_dataobjects as $className) {

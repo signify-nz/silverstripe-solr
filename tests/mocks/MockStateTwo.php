@@ -4,7 +4,7 @@
 namespace Firesphere\SolrSearch\Tests;
 
 use Firesphere\SolrSearch\Interfaces\SiteStateInterface;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Firesphere\SolrSearch\States\SiteState;
 use SilverStripe\Dev\TestOnly;
 
@@ -53,7 +53,7 @@ class MockStateTwo extends SiteState implements TestOnly, SiteStateInterface
     /**
      * Method to alter the query. Can be no-op.
      *
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @return mixed
      */
     public function updateQuery(&$query)

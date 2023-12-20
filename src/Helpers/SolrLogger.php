@@ -10,6 +10,8 @@
 namespace Firesphere\SolrSearch\Helpers;
 
 use Countable;
+use Firesphere\SearchBackend\Config\SearchConfig;
+use Firesphere\SearchBackend\Helpers\SearchLogger;
 use Firesphere\SearchBackend\Models\SearchLog;
 use Firesphere\SolrSearch\Models\SolrLog;
 use Firesphere\SolrSearch\Services\SolrCoreService;
@@ -30,7 +32,7 @@ use Solarium\Exception\HttpException;
  *
  * @package Firesphere\Solr\Search
  */
-class SolrLogger
+class SolrLogger extends SearchLogger
 {
     /**
      * @var Client Guzzle base client to communicate with Solr
@@ -49,7 +51,7 @@ class SolrLogger
      */
     public function __construct($handler = null)
     {
-        $config = SolrCoreService::config()->get('config');
+        $config = ['endpoint' => ['localhost' => SearchConfig::getConfig(SearchConfig::SOLR_CONFIG)]];
         $hostConfig = array_shift($config['endpoint']);
         $guzzleConfig = [
             'base_uri' => $hostConfig['host'] . ':' . $hostConfig['port'],

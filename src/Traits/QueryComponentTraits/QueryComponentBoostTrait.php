@@ -11,7 +11,7 @@
 namespace Firesphere\SolrSearch\Traits;
 
 use Firesphere\SolrSearch\Factories\QueryComponentFactory;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Minimalcode\Search\Criteria;
 
 /**
@@ -24,7 +24,7 @@ trait QueryComponentBoostTrait
     /**
      * BaseQuery that is going to be executed
      *
-     * @var BaseQuery
+     * @var SolrQuery
      */
     protected $query;
     /**

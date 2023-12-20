@@ -7,7 +7,7 @@ use CircleCITestIndex;
 use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Factories\QueryComponentFactory;
 use Firesphere\SolrSearch\Indexes\SolrIndex;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Minimalcode\Search\Criteria;
 use Page;
 use ReflectionMethod;
@@ -47,7 +47,7 @@ class QueryComponentFactoryTest extends SapphireTest
     public function testBuildQuery()
     {
         $index = new CircleCITestIndex();
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $clientQuery = $index->getClient()->createSelect();
         $query->addTerm('Home');
         $query->addField('SiteTree_Title');
@@ -72,7 +72,7 @@ class QueryComponentFactoryTest extends SapphireTest
         $this->assertCount(3, $this->factory->getClientQuery()->getFilterQueries());
         $this->assertInstanceOf(Helper::class, $this->factory->getHelper());
         $this->assertInstanceOf(SolrIndex::class, $this->factory->getIndex());
-        $this->assertInstanceOf(BaseQuery::class, $this->factory->getQuery());
+        $this->assertInstanceOf(SolrQuery::class, $this->factory->getQuery());
         $this->assertInternalType('array', $this->factory->getQueryArray());
         $this->assertInternalType('array', $this->factory->getBoostTerms());
     }
@@ -138,7 +138,7 @@ class QueryComponentFactoryTest extends SapphireTest
         $mockClientQuery->mockFilterQuery = $mockFilterQuery;
         $mockClientQuery->mockExcludeQuery = $mockExcludeQuery;
 
-        $baseQuery = new BaseQuery();
+        $baseQuery = new SolrQuery();
         $baseQuery->addFilter('TestFilterField', 'TestFilterValue');
         $baseQuery->addExclude('TestExcludeField', 'TestExcludeValue');
 
@@ -177,7 +177,7 @@ class QueryComponentFactoryTest extends SapphireTest
         $mockClientQuery->mockFilterQuery = $mockFilterQuery;
         $mockClientQuery->mockExcludeQuery = $mockExcludeQuery;
 
-        $baseQuery = new BaseQuery();
+        $baseQuery = new SolrQuery();
         $baseQuery->addFilter('TestFilterField', Criteria::where('TestFilterField')->is('TestFilterValue'));
         $baseQuery->addExclude('TestExcludeField', Criteria::where('TestExcludeField')->is('TestExcludeValue'));
 

@@ -19,7 +19,7 @@ use Firesphere\SolrSearch\Factories\SchemaFactory;
 use Firesphere\SolrSearch\Helpers\SolrLogger;
 use Firesphere\SolrSearch\Helpers\Synonyms;
 use Firesphere\SolrSearch\Interfaces\ConfigStore;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Firesphere\SolrSearch\Results\SearchResult;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\States\SiteState;
@@ -52,8 +52,6 @@ abstract class SolrIndex extends CoreIndex
     use Extensible;
     use Configurable;
     use Injectable;
-    use GetterSetterTrait;
-    use BaseIndexTrait;
     use QueryFilterTrait;
 
     /**
@@ -104,25 +102,9 @@ abstract class SolrIndex extends CoreIndex
     }
 
     /**
-     * Build a full config for all given endpoints
-     * This is to add the current index to e.g. an index or select
-     *
-     * @param array $endpoints
-     * @return array
-     */
-    public function getConfig($endpoints): array
-    {
-        foreach ($endpoints as $host => $endpoint) {
-            $endpoints[$host]['core'] = $this->getIndexName();
-        }
-
-        return $endpoints;
-    }
-
-    /**
      * Default returns a SearchResult. It can return an ArrayData if FTS Compat is enabled
      *
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @return SearchResult|ArrayData|mixed
      * @throws HTTPException
      * @throws ValidationException
@@ -169,11 +151,11 @@ abstract class SolrIndex extends CoreIndex
 
     /**
      * From the given BaseQuery, generate a Solarium ClientQuery object
-     * @todo refactor to implement {@link QueryBuilderInterface}
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @return Query
+     *@todo refactor to implement {@link QueryBuilderInterface}
      */
-    public function buildSolrQuery(BaseQuery $query): Query
+    public function buildSolrQuery(SolrQuery $query): Query
     {
         $clientQuery = $this->client->createSelect();
         $factory = $this->buildFactory($query, $clientQuery);
@@ -190,11 +172,11 @@ abstract class SolrIndex extends CoreIndex
     /**
      * Build a factory to use in the SolrQuery building. {@link static::buildSolrQuery()}
      *
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @param Query $clientQuery
      * @return QueryComponentFactory|mixed
      */
-    protected function buildFactory(BaseQuery $query, Query $clientQuery)
+    protected function buildFactory(SolrQuery $query, Query $clientQuery)
     {
         $factory = $this->queryFactory;
 
@@ -216,12 +198,12 @@ abstract class SolrIndex extends CoreIndex
      * If spellchecking is enabled and nothing is found OR it should follow spellchecking none the less
      * There is a spellcheck output
      *
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @param Result $result
      * @param SearchResult $searchResult
      * @return bool
      */
-    protected function doRetry(BaseQuery $query, Result $result, SearchResult $searchResult): bool
+    protected function doRetry(SolrQuery $query, Result $result, SearchResult $searchResult): bool
     {
         return !$this->retry &&
             $query->hasSpellcheck() &&
@@ -232,14 +214,14 @@ abstract class SolrIndex extends CoreIndex
     /**
      * Retry the query with the first collated spellcheck found.
      *
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @param SearchResult $searchResult
      * @return SearchResult|mixed|ArrayData
      * @throws HTTPException
      * @throws ValidationException
      * @throws ReflectionException
      */
-    protected function spellcheckRetry(BaseQuery $query, SearchResult $searchResult)
+    protected function spellcheckRetry(SolrQuery $query, SearchResult $searchResult)
     {
         $terms = $query->getTerms();
         $spellChecked = $searchResult->getCollatedSpellcheck();
@@ -373,5 +355,47 @@ abstract class SolrIndex extends CoreIndex
     public function isRetry(): bool
     {
         return $this->retry;
+    }
+
+    /**
+     * Gives the option to completely override the client query set
+     *
+     * @param array $clientQuery
+     * @return $this
+     */
+    public function setClientQuery(array $clientQuery): self
+    {
+        $this->clientQuery = $clientQuery;
+
+        return $this;
+    }
+
+    /**
+     * Add a filterable field
+     * Compatibility stub for Solr
+     *
+     * @param $filterField
+     * @return $this
+     */
+    public function addFilterField($filterField): self
+    {
+        parent::addFilterField($filterField);
+        $this->addFulltextField($filterField);
+
+        return $this;
+    }
+
+    /**
+     * Add a single Fulltext field
+     *
+     * @param string $fulltextField
+     * @param array $options
+     * @return $this
+     */
+    public function addFulltextField($fulltextField, $options = []): self
+    {
+        $this->fulltextFields[] = $fulltextField;
+
+        return $this;
     }
 }

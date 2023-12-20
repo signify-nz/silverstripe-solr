@@ -11,8 +11,6 @@ namespace Firesphere\SolrSearch\Queries;
 
 use Firesphere\SearchBackend\Interfaces\QueryInterface;
 use Firesphere\SearchBackend\Queries\CoreQuery;
-use Firesphere\SolrSearch\Traits\BaseQueryTrait;
-use Firesphere\SolrSearch\Traits\GetterSetterTrait;
 use SilverStripe\Core\Injector\Injectable;
 
 /**
@@ -22,10 +20,8 @@ use SilverStripe\Core\Injector\Injectable;
  *
  * @package Firesphere\Solr\Search
  */
-class BaseQuery extends CoreQuery implements QueryInterface
+class SolrQuery extends CoreQuery implements QueryInterface
 {
-//    use GetterSetterTrait;
-//    use BaseQueryTrait;
     use Injectable;
 
     /**
@@ -181,9 +177,9 @@ class BaseQuery extends CoreQuery implements QueryInterface
      * Set if we should follow spellchecking
      *
      * @param bool $followSpellcheck
-     * @return BaseQuery
+     * @return SolrQuery
      */
-    public function setFollowSpellcheck(bool $followSpellcheck): BaseQuery
+    public function setFollowSpellcheck(bool $followSpellcheck): SolrQuery
     {
         $this->followSpellcheck = $followSpellcheck;
 

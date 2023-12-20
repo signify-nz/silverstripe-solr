@@ -6,7 +6,7 @@ use Firesphere\SolrSearch\Extensions\DataObjectExtension;
 use Firesphere\SolrSearch\Extensions\GridFieldExtension;
 use Firesphere\SolrSearch\Models\DirtyClass;
 use Firesphere\SolrSearch\Models\SolrLog;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Tasks\SolrConfigureTask;
 use Page;
@@ -143,7 +143,7 @@ class DataObjectExtensionTest extends SapphireTest
         $page->write();
         $page->publishRecursive();
 
-        $query = new BaseQuery();
+        $query = new SolrQuery();
         $query->addTerm('ShowInSearch Now');
 
         $count = (new TestIndex())->doSearch($query);

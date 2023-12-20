@@ -1,7 +1,7 @@
 <?php
 /**
  * Trait BaseQueryTrait|Firesphere\SolrSearch\Traits\BaseQueryTrait Trait to clean up the
- * {@link \Firesphere\SolrSearch\Queries\BaseQuery}
+ * {@link \Firesphere\SolrSearch\Queries\SolrQuery}
  *
  * @package Firesphere\Solr\Search
  * @author Simon `Firesphere` Erkelens; Marco `Sheepy` Hermo

@@ -10,7 +10,7 @@
 namespace Firesphere\SolrSearch\Results;
 
 use Firesphere\SolrSearch\Indexes\SolrIndex;
-use Firesphere\SolrSearch\Queries\BaseQuery;
+use Firesphere\SolrSearch\Queries\SolrQuery;
 use Firesphere\SolrSearch\Services\SolrCoreService;
 use Firesphere\SolrSearch\Traits\SearchResultGetTrait;
 use Firesphere\SolrSearch\Traits\SearchResultSetTrait;
@@ -44,7 +44,7 @@ class SearchResult extends ViewableData
     use SearchResultSetTrait;
 
     /**
-     * @var BaseQuery Query that has been executed
+     * @var SolrQuery Query that has been executed
      */
     protected $query;
     /**
@@ -62,10 +62,10 @@ class SearchResult extends ViewableData
      * See Solarium docs for this.
      *
      * @param Result $result
-     * @param BaseQuery $query
+     * @param SolrQuery $query
      * @param SolrIndex $index
      */
-    public function __construct(Result $result, BaseQuery $query, SolrIndex $index)
+    public function __construct(Result $result, SolrQuery $query, SolrIndex $index)
     {
         parent::__construct();
         $this->index = $index;
