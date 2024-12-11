@@ -1,3 +1,6 @@
+# This has been replaced by [signify-nz/silverstripe-solr-search](https://github.com/signify-nz/silverstripe-solr-search) - please use that package instead.
+
+
 **BASED ON [firesphere/solr-search](https://codeberg.org/Firesphere/silverstripe-solr)**
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/55c8967ef25e37182e3d/maintainability)](https://codeclimate.com/github/Firesphere/silverstripe-solr-search/maintainability)
